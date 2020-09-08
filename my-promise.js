@@ -30,6 +30,22 @@ class myPromise {
     if (this.__status === "fulfilled") return this;
     return new myPromise(() => {});
   }
+
+  static all(promises) {
+    return new myPromise((resolve) => {
+      if (!promises.length) resolve([]);
+      else {
+        const results = [];
+        promises.forEach((promise) => {
+          return promise.then((result) => {
+            results.push(result);
+
+            resolve(results);
+          });
+        });
+      }
+    });
+  }
 }
 
 module.exports = myPromise;
