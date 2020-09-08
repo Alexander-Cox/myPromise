@@ -1,7 +1,7 @@
 const myPromise = require("./my-promise");
 
 jest.setTimeout(500);
-describe("my-promise", () => {
+describe("myPromise Sync functionality", () => {
   describe("PROPERTIES", () => {
     it('has a __status property initially set to "pending"', () => {
       const testPromise = new myPromise(() => {});
@@ -54,35 +54,37 @@ describe("my-promise", () => {
       });
       it("should take an onFulfillment callback which passes the myPromise value as the arg", (done) => {
         const fulfillmentValue = {};
-        const testPromise = new myPromise((resolve) => {
+        const successfulPromise = new myPromise((resolve) => {
           resolve(fulfillmentValue);
         });
-        testPromise.then((data) => {
+
+        successfulPromise.then((data) => {
           expect(data).toBe(fulfillmentValue);
           done();
         });
       });
       it("only gets called if fulfilled", () => {
-        const testPromise = new myPromise((_, reject) => {
+        const failingPromise = new myPromise((_, reject) => {
           reject();
         });
-        testPromise.then(() => {
+        return failingPromise.then(() => {
           throw new Error("This then block should not have run");
         });
       });
       it("should allow chaining of myPromises", (done) => {
         const valueOne = { 1: "hello" };
-        const testPromiseOne = new myPromise((resolve) => {
+        const successfulPromiseOne = new myPromise((resolve) => {
           resolve(valueOne);
         });
         const valueTwo = { 2: "hi" };
-        const testPromiseTwo = new myPromise((resolve) => {
+        const successfulPromiseTwo = new myPromise((resolve) => {
           resolve(valueTwo);
         });
-        testPromiseOne
+
+        successfulPromiseOne
           .then((resultOne) => {
             expect(resultOne).toBe(valueOne);
-            return testPromiseTwo;
+            return successfulPromiseTwo;
           })
           .then((resultTwo) => {
             expect(resultTwo).toBe(valueTwo);
@@ -91,10 +93,11 @@ describe("my-promise", () => {
       });
       it("should pass along anything other than a myPromise as the next promise resolved value", (done) => {
         const testObj = { "not-a-promise": true };
-        const testPromiseTwo = new myPromise((resolve) => {
+        const testPromise = new myPromise((resolve) => {
           resolve();
         });
-        testPromiseTwo
+
+        testPromise
           .then(() => {
             return testObj;
           })
@@ -105,10 +108,11 @@ describe("my-promise", () => {
       });
       it("allows for the a chained .catch to fire if its rejects", (done) => {
         const value = { 1: "rejected" };
-        const testPromise = new myPromise((_, reject) => {
+        const failingPromise = new myPromise((_, reject) => {
           reject(value);
         });
-        testPromise
+
+        failingPromise
           .then(() => {})
           .catch((result) => {
             expect(result).toBe(value);
@@ -123,40 +127,53 @@ describe("my-promise", () => {
       });
       it("should take an onRejection callback which passes the myPromise value as the arg if the myPromise is rejected", (done) => {
         const rejectValue = {};
-        const testPromise = new myPromise((_, reject) => {
+        const failingPromise = new myPromise((_, reject) => {
           reject(rejectValue);
         });
-        testPromise.catch((err) => {
+
+        failingPromise.catch((err) => {
           expect(err).toBe(rejectValue);
           done();
         });
       });
-      test.todo("why cant we return the myPromises?");
       it("only gets called if rejected", () => {
-        const testPromise = new myPromise((resolve) => {
+        const successfulPromise = new myPromise((resolve) => {
           resolve();
         });
-        testPromise.catch(() => {
+        return successfulPromise.catch(() => {
           throw new Error("This catch block should not have run");
         });
       });
       it("allows for the a chained .then to fire if its resolved", (done) => {
         const value = { 1: "hello" };
-        const testPromise = new myPromise((resolve) => {
+        const successfulPromise = new myPromise((resolve) => {
           resolve(value);
         });
-        testPromise
+        successfulPromise
           .catch(() => {})
           .then((result) => {
             expect(result).toBe(value);
             done();
           });
       });
-    });
-    describe("method chaining", () => {
-      test.todo(
-        "should skip then then block and move straight to the catch if initial promise is rejected"
-      );
+      it("should skip then .then block and move straight to the catch if initial promise is rejected", (done) => {
+        const rejectErr = new Error("something went wrong");
+        const failingPromise = new myPromise((_, reject) => {
+          reject(rejectErr);
+        });
+
+        failingPromise
+          .then(() => {
+            throw new Error("This then block should not have run");
+          })
+          .then(() => {
+            throw new Error("This then block should not have run");
+          })
+          .catch((err) => {
+            expect(err).toBe(rejectErr);
+            done();
+          });
+      });
     });
   });
 });
