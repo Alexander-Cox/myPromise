@@ -70,6 +70,51 @@ describe("my-promise", () => {
           throw new Error("This then block should not have run");
         });
       });
+      it("should allow chaining of myPromises", (done) => {
+        const valueOne = { 1: "hello" };
+        const testPromiseOne = new myPromise((resolve) => {
+          resolve(valueOne);
+        });
+        const valueTwo = { 2: "hi" };
+        const testPromiseTwo = new myPromise((resolve) => {
+          resolve(valueTwo);
+        });
+        testPromiseOne
+          .then((resultOne) => {
+            expect(resultOne).toBe(valueOne);
+            return testPromiseTwo;
+          })
+          .then((resultTwo) => {
+            expect(resultTwo).toBe(valueTwo);
+            done();
+          });
+      });
+      it("should pass along anything other than a myPromise as the next promise resolved value", (done) => {
+        const testObj = { "not-a-promise": true };
+        const testPromiseTwo = new myPromise((resolve) => {
+          resolve();
+        });
+        testPromiseTwo
+          .then(() => {
+            return testObj;
+          })
+          .then((result) => {
+            expect(result).toBe(testObj);
+            done();
+          });
+      });
+      it("allows for the a chained .catch to fire if its rejects", (done) => {
+        const value = { 1: "rejected" };
+        const testPromise = new myPromise((_, reject) => {
+          reject(value);
+        });
+        testPromise
+          .then(() => {})
+          .catch((result) => {
+            expect(result).toBe(value);
+            done();
+          });
+      });
     });
     describe("catch", () => {
       it("should return a new instance of the promise", () => {
@@ -86,6 +131,7 @@ describe("my-promise", () => {
           done();
         });
       });
+      test.todo("why cant we return the myPromises?");
       it("only gets called if rejected", () => {
         const testPromise = new myPromise((resolve) => {
           resolve();
@@ -93,6 +139,18 @@ describe("my-promise", () => {
         testPromise.catch(() => {
           throw new Error("This catch block should not have run");
         });
+      });
+      it("allows for the a chained .then to fire if its resolved", (done) => {
+        const value = { 1: "hello" };
+        const testPromise = new myPromise((resolve) => {
+          resolve(value);
+        });
+        testPromise
+          .catch(() => {})
+          .then((result) => {
+            expect(result).toBe(value);
+            done();
+          });
       });
     });
     describe("method chaining", () => {
