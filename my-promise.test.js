@@ -1,5 +1,6 @@
 const myPromise = require("./my-promise");
 
+jest.setTimeout(500);
 describe("my-promise", () => {
   describe("PROPERTIES", () => {
     it('has a __status property initially set to "pending"', () => {
@@ -49,14 +50,55 @@ describe("my-promise", () => {
     describe("then", () => {
       it("should return a new instance of the promise", () => {
         const testPromise = new myPromise(() => {});
-        expect(testPromise.then()).toBeInstanceOf(myPromise);
+        expect(testPromise.then(() => {})).toBeInstanceOf(myPromise);
+      });
+      it("should take an onFulfillment callback which passes the myPromise value as the arg", (done) => {
+        const fulfillmentValue = {};
+        const testPromise = new myPromise((resolve) => {
+          resolve(fulfillmentValue);
+        });
+        testPromise.then((data) => {
+          expect(data).toBe(fulfillmentValue);
+          done();
+        });
+      });
+      it("only gets called if fulfilled", () => {
+        const testPromise = new myPromise((_, reject) => {
+          reject();
+        });
+        testPromise.then(() => {
+          throw new Error("This then block should not have run");
+        });
       });
     });
     describe("catch", () => {
       it("should return a new instance of the promise", () => {
         const testPromise = new myPromise(() => {});
-        expect(testPromise.catch()).toBeInstanceOf(myPromise);
+        expect(testPromise.catch(() => {})).toBeInstanceOf(myPromise);
       });
+      it("should take an onRejection callback which passes the myPromise value as the arg if the myPromise is rejected", (done) => {
+        const rejectValue = {};
+        const testPromise = new myPromise((_, reject) => {
+          reject(rejectValue);
+        });
+        testPromise.catch((err) => {
+          expect(err).toBe(rejectValue);
+          done();
+        });
+      });
+      it("only gets called if rejected", () => {
+        const testPromise = new myPromise((resolve) => {
+          resolve();
+        });
+        testPromise.catch(() => {
+          throw new Error("This catch block should not have run");
+        });
+      });
+    });
+    describe("method chaining", () => {
+      test.todo(
+        "should skip then then block and move straight to the catch if initial promise is rejected"
+      );
     });
   });
 });

@@ -14,10 +14,12 @@ class myPromise {
       }
     );
   }
-  then() {
+  then(onFulfillment) {
+    if (this.__status === "fulfilled") onFulfillment(this.__value);
     return new myPromise(() => {});
   }
-  catch() {
+  catch(onRejection) {
+    if (this.__status === "rejected") onRejection(this.__value);
     return new myPromise(() => {});
   }
 }
