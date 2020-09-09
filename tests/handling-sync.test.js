@@ -162,7 +162,7 @@ describe("Sync functionality", () => {
           reject(rejectErr);
         });
 
-        failingPromise
+        return failingPromise
           .then(() => {
             throw new Error("This then block should not have run");
           })

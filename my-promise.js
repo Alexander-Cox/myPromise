@@ -13,16 +13,27 @@ class myPromise {
       }
     );
   }
+
   then(onFulfillment) {
     if (this.__status === "pending") {
       setImmediate(() => {
         this.then(onFulfillment);
       });
-    } else {
-      process.nextTick(() => {
-        onFulfillment(this.__value);
-      });
     }
+    // else if (this.__status === "fulfilled") {
+    //   const onFulfillmentResult = onFulfillment(this.__value);
+    //   return onFulfillmentResult;
+    // }
+    return new myPromise((resolve, reject) => {
+      setImmediate(() => {
+        const onFulfillmentResult = onFulfillment(this.__value);
+        if (onFulfillmentResult instanceof myPromise) {
+          // this = onFulfillmentResult;
+        } else {
+          resolve(onFulfillmentResult);
+        }
+      });
+    });
     // if (this.__status === "fulfilled") {
     //   const onFulfillmentResult = process.nextTick(() =>
     //     onFulfillment(this.__value)
@@ -35,10 +46,18 @@ class myPromise {
     // } else if (this.__status === "rejected") return this;
     // return new myPromise(() => {});
   }
+
   catch(onRejection) {
-    if (this.__status === "rejected") onRejection(this.__value);
-    if (this.__status === "fulfilled") return this;
-    return new myPromise(() => {});
+    if (this.__status === "pending") {
+      setImmediate(() => {
+        this.catch(onRejection);
+      });
+    } else if (this.__status === "rejected") {
+      onRejection(this.__value);
+    }
+    // if (this.__status === "rejected") onRejection(this.__value);
+    // if (this.__status === "fulfilled") return this;
+    // return new myPromise(() => {});
   }
 
   static all(promises) {
