@@ -2,7 +2,6 @@ class myPromise {
   constructor(executor) {
     this.__status = "pending";
     this.__value = undefined;
-
     executor(
       (fulfillmentValue) => {
         this.__status = "fulfilled";
@@ -15,15 +14,26 @@ class myPromise {
     );
   }
   then(onFulfillment) {
-    if (this.__status === "fulfilled") {
-      const onFulfillmentResult = onFulfillment(this.__value);
-      if (onFulfillmentResult instanceof myPromise) return onFulfillmentResult;
-      else
-        return new myPromise((resolve) => {
-          resolve(onFulfillmentResult);
-        });
-    } else if (this.__status === "rejected") return this;
-    return new myPromise(() => {});
+    if (this.__status === "pending") {
+      setImmediate(() => {
+        this.then(onFulfillment);
+      });
+    } else {
+      process.nextTick(() => {
+        onFulfillment(this.__value);
+      });
+    }
+    // if (this.__status === "fulfilled") {
+    //   const onFulfillmentResult = process.nextTick(() =>
+    //     onFulfillment(this.__value)
+    //   );
+    //   if (onFulfillmentResult instanceof myPromise) return onFulfillmentResult;
+    //   else
+    //     return new myPromise((resolve) => {
+    //       resolve(onFulfillmentResult);
+    //     });
+    // } else if (this.__status === "rejected") return this;
+    // return new myPromise(() => {});
   }
   catch(onRejection) {
     if (this.__status === "rejected") onRejection(this.__value);
