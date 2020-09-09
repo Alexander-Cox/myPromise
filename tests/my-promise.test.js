@@ -1,4 +1,4 @@
-const myPromise = require("./my-promise");
+const myPromise = require("../my-promise");
 
 jest.setTimeout(500);
 describe("myPromise Sync functionality", () => {
