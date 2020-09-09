@@ -41,7 +41,32 @@ describe("STATIC METHODS", () => {
           expect(resultArray).toContain(fulfilledValueTwo);
         });
     });
+    it("should return the results in order", () => {
+      const fulfilledValueOne = { success: true };
+      const fulfilledValueTwo = { successAgain: true };
+      const fulfilledValueThree = { successYetAgain: true };
+      const successfulPromiseOne = new myPromise((resolve) => {
+        resolve(fulfilledValueOne);
+      });
+      const successfulPromiseTwo = new myPromise((resolve) => {
+        resolve(fulfilledValueTwo);
+      });
+      const successfulPromiseThree = new myPromise((resolve) => {
+        resolve(fulfilledValueThree);
+      });
+
+      return myPromise
+        .all([
+          successfulPromiseOne,
+          successfulPromiseTwo,
+          successfulPromiseThree,
+        ])
+        .then(([firstResult, secondResult, thirdResult]) => {
+          expect(firstResult).toBe(fulfilledValueOne);
+          expect(secondResult).toBe(fulfilledValueTwo);
+          expect(thirdResult).toBe(fulfilledValueThree);
+        });
+    });
   });
   test.todo("check not called multiple times");
-  test.todo("maintain order of promises");
 });

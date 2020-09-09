@@ -67,7 +67,7 @@ describe("myPromise Sync functionality", () => {
         const failingPromise = new myPromise((_, reject) => {
           reject();
         });
-        return failingPromise.then(() => {
+        failingPromise.then(() => {
           throw new Error("This then block should not have run");
         });
       });
