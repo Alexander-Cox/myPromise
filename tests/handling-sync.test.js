@@ -1,7 +1,7 @@
 const myPromise = require("../my-promise");
 
 jest.setTimeout(500);
-describe("myPromise Sync functionality", () => {
+describe("Sync functionality", () => {
   describe("PROPERTIES", () => {
     it('has a __status property initially set to "pending"', () => {
       const testPromise = new myPromise(() => {});
