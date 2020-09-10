@@ -2,7 +2,6 @@ class myPromise {
   constructor(executor) {
     this.__status = 'pending';
     this.__value = undefined;
-    this.__thenCallbacks = [];
     this.__propogatedResolve = undefined;
     this.__propogatedReject = undefined;
     executor(this.__resolve.bind(this), this.__reject.bind(this));
@@ -19,22 +18,23 @@ class myPromise {
   }
 
   then(onFulfillment) {
-    setImmediate(() => {
+    //somehow adding in the async makes all the difference for chaining thens
+    process.nextTick(() => {
       //if promise is pending...
       //exit and put a new then on the immediate queue
       if (this.__status === 'pending') {
-        return setImmediate(() => {
+        setImmediate(() => {
           this.then(onFulfillment);
         });
-      } else {
+        //maybe return for the purpose of setting promise return??
+        // break;
+      } else if (this.__status === 'fulfilled') {
         //otherwise we must be resolved/rejected
-        //get result back from then callback
+        //get result back from then callback but only if the promise was a success
         const result = onFulfillment(this.__value);
-        if (result instanceof myPromise) {
-          return this.__propogatedResolve(result.__value);
-        } else {
-          return this.__propogatedResolve(result);
-        }
+        const isPromise = result instanceof myPromise;
+        const value = isPromise ? result.__value : result;
+        if (this.__propogatedResolve) this.__propogatedResolve(value);
       }
     });
     //if we have no new promise resolve function
@@ -42,8 +42,8 @@ class myPromise {
     if (!this.__propogatedResolve) {
       //create a promise for the purpose of chaining future
       const newProm = new myPromise(() => {});
-
       this.__propogatedResolve = this.__resolve.bind(newProm);
+      this.__propogatedReject = this.__reject.bind(newProm);
       //return promise for chaining next then on
       return newProm;
     }
@@ -58,6 +58,7 @@ class myPromise {
     } else if (this.__status === 'rejected') {
       onRejection(this.__value);
     }
+    return new myPromise(() => {});
   }
 
   static all(promises) {

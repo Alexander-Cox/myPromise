@@ -73,11 +73,11 @@ describe('Sync functionality', () => {
         });
       });
       it('should allow chaining of myPromises', (done) => {
-        const valueOne = { 1: 'hello' };
+        const valueOne = { 1: '1st promise' };
         const successfulPromiseOne = new myPromise((resolve) => {
           resolve(valueOne);
         });
-        const valueTwo = { 2: 'hi' };
+        const valueTwo = { 2: '2nd promise' };
         const successfulPromiseTwo = new myPromise((resolve) => {
           resolve(valueTwo);
         });
