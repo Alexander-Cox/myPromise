@@ -10,7 +10,7 @@ describe('Sync functionality', () => {
     });
     it('has a __value property initially set to "pending"', () => {
       const testPromise = new myPromise(() => {});
-      // expect(testPromise).toHaveProperty('__value');
+      expect(testPromise).to.have.property('__value');
       expect(testPromise.__value).to.equal(undefined);
     });
   });
