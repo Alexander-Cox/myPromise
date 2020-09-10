@@ -29,12 +29,15 @@ class myPromise {
         //maybe return for the purpose of setting promise return??
         // break;
       } else if (this.__status === 'fulfilled') {
-        //otherwise we must be resolved/rejected
-        //get result back from then callback but only if the promise was a success
         const result = onFulfillment(this.__value);
         const isPromise = result instanceof myPromise;
         const value = isPromise ? result.__value : result;
+        //otherwise we must be resolved/rejected
+        //get result back from then callback but only if the promise was a success
         if (this.__propogatedResolve) this.__propogatedResolve(value);
+      } else if (this.__status === 'rejected') {
+        // const result = onFulfillment(this.__value);
+        this.__propogatedReject(this.__value);
       }
     });
     //if we have no new promise resolve function
@@ -51,14 +54,25 @@ class myPromise {
   }
 
   catch(onRejection) {
-    if (this.__status === 'pending') {
-      setImmediate(() => {
-        this.catch(onRejection);
-      });
-    } else if (this.__status === 'rejected') {
-      onRejection(this.__value);
+    process.nextTick(() => {
+      if (this.__status === 'fulfilled') {
+        this.__propogatedResolve(this.__value);
+      } else if (this.__status === 'pending') {
+        setImmediate(() => {
+          this.catch(onRejection);
+        });
+      } else if (this.__status === 'rejected') {
+        onRejection(this.__value);
+      }
+    });
+    if (!this.__propogatedResolve) {
+      //create a promise for the purpose of chaining future
+      const newProm = new myPromise(() => {});
+      this.__propogatedResolve = this.__resolve.bind(newProm);
+      this.__propogatedReject = this.__reject.bind(newProm);
+      //return promise for chaining next then on
+      return newProm;
     }
-    return new myPromise(() => {});
   }
 
   static all(promises) {

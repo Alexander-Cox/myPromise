@@ -66,10 +66,12 @@ describe('Async functionality', () => {
     });
     successfulPromise
       .then((result) => {
+        console.log('1  >>>>', result);
         expect(result).to.equal(simpleObj);
         return lifeLyricsPromise;
       })
       .then((result) => {
+        console.log('2  >>>>', result);
         expect(result).to.equal(lifeSongLyrics);
         done();
       });
