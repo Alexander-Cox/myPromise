@@ -107,19 +107,6 @@ describe('Sync functionality', () => {
             done();
           });
       });
-      it('allows for a chained .catch to fire if its rejects', (done) => {
-        const value = { 1: 'rejected' };
-        const failingPromise = new myPromise((_, reject) => {
-          reject(value);
-        });
-
-        failingPromise
-          .then(() => {})
-          .catch((result) => {
-            expect(result).to.equal(value);
-            done();
-          });
-      });
     });
     describe('catch', () => {
       it('should return a new instance of the promise', () => {
@@ -145,7 +132,20 @@ describe('Sync functionality', () => {
           throw new Error('This catch block should not have run');
         });
       });
-      it('allows for the a chained .then to fire if its resolved', (done) => {
+      it('will .catch if a promise higher up the chain rejects', (done) => {
+        const value = { 1: 'rejected' };
+        const failingPromise = new myPromise((_, reject) => {
+          reject(value);
+        });
+
+        failingPromise
+          .then(() => {})
+          .catch((result) => {
+            expect(result).to.equal(value);
+            done();
+          });
+      });
+      it('allows for a chained .then to fire if its resolved', (done) => {
         const value = { 1: 'hello' };
         const successfulPromise = new myPromise((resolve) => {
           resolve(value);
@@ -163,7 +163,7 @@ describe('Sync functionality', () => {
           reject(rejectErr);
         });
 
-        return failingPromise
+        failingPromise
           .then(() => {
             throw new Error('This then block should not have run');
           })
