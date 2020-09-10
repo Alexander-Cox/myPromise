@@ -1,65 +1,66 @@
 const myPromise = require('../my-promise');
+const sinon = require('sinon');
+const { expect } = require('chai');
 
-jest.setTimeout(500);
 describe('Sync functionality', () => {
   describe('PROPERTIES', () => {
     it('has a __status property initially set to "pending"', () => {
       const testPromise = new myPromise(() => {});
-      expect(testPromise.__status).toBe('pending');
+      expect(testPromise.__status).to.equal('pending');
     });
     it('has a __value property initially set to "pending"', () => {
       const testPromise = new myPromise(() => {});
-      expect(testPromise).toHaveProperty('__value');
-      expect(testPromise.__value).toBe(undefined);
+      // expect(testPromise).toHaveProperty('__value');
+      expect(testPromise.__value).to.equal(undefined);
     });
   });
   describe('EXECUTOR FUNCTION', () => {
     it('should call the executor function pass as an argument', () => {
-      const mockFn = jest.fn();
+      const mockFn = sinon.spy();
       new myPromise(mockFn);
-      expect(mockFn).toHaveBeenCalled();
+      expect(mockFn.calledOnce).to.be.true;
     });
     it('should take a resolve function that if called will change the status to fulfilled', () => {
       const testPromise = new myPromise((resolve) => {
         resolve();
       });
-      expect(testPromise.__status).toBe('fulfilled');
+      expect(testPromise.__status).to.equal('fulfilled');
     });
     it('should take a resolve function that if called with an argument will change the promise value to that arg', () => {
       const fulfilledValue = {};
       const testPromise = new myPromise((resolve) => {
         resolve(fulfilledValue);
       });
-      expect(testPromise.__value).toBe(fulfilledValue);
+      expect(testPromise.__value).to.equal(fulfilledValue);
     });
     it('should take a reject function that when called sets the status to rejected', () => {
       const testPromise = new myPromise((_, reject) => {
         reject();
       });
-      expect(testPromise.__status).toBe('rejected');
+      expect(testPromise.__status).to.equal('rejected');
     });
     it('should take a reject function that if called with an argument will change the promise value to that arg', () => {
       const rejectValue = new Error('something went wrong');
       const testPromise = new myPromise((_, reject) => {
         reject(rejectValue);
       });
-      expect(testPromise.__value).toBe(rejectValue);
+      expect(testPromise.__value).to.equal(rejectValue);
     });
   });
   describe('METHODS', () => {
     describe('then', () => {
       it('should return a new instance of the promise', () => {
         const testPromise = new myPromise(() => {});
-        expect(testPromise.then(() => {})).toBeInstanceOf(myPromise);
+        expect(testPromise.then(() => {})).to.be.instanceof(myPromise);
       });
       it('should take an onFulfillment callback which passes the myPromise value as the arg', (done) => {
-        const fulfillmentValue = {};
+        const fulfillmentValue = { syncPromiseValue: true };
         const successfulPromise = new myPromise((resolve) => {
           resolve(fulfillmentValue);
         });
 
         successfulPromise.then((data) => {
-          expect(data).toBe(fulfillmentValue);
+          expect(data).to.equal(fulfillmentValue);
           done();
         });
       });
@@ -83,11 +84,11 @@ describe('Sync functionality', () => {
 
         successfulPromiseOne
           .then((resultOne) => {
-            expect(resultOne).toBe(valueOne);
+            expect(resultOne).to.equal(valueOne);
             return successfulPromiseTwo;
           })
           .then((resultTwo) => {
-            expect(resultTwo).toBe(valueTwo);
+            expect(resultTwo).to.equal(valueTwo);
             done();
           });
       });
@@ -102,7 +103,7 @@ describe('Sync functionality', () => {
             return testObj;
           })
           .then((result) => {
-            expect(result).toBe(testObj);
+            expect(result).to.equal(testObj);
             done();
           });
       });
@@ -115,7 +116,7 @@ describe('Sync functionality', () => {
         failingPromise
           .then(() => {})
           .catch((result) => {
-            expect(result).toBe(value);
+            expect(result).to.equal(value);
             done();
           });
       });
@@ -123,7 +124,7 @@ describe('Sync functionality', () => {
     describe('catch', () => {
       it('should return a new instance of the promise', () => {
         const testPromise = new myPromise(() => {});
-        expect(testPromise.catch(() => {})).toBeInstanceOf(myPromise);
+        expect(testPromise.catch(() => {})).to.be.instanceof(myPromise);
       });
       it('should take an onRejection callback which passes the myPromise value as the arg if the myPromise is rejected', (done) => {
         const rejectValue = {};
@@ -132,7 +133,7 @@ describe('Sync functionality', () => {
         });
 
         failingPromise.catch((err) => {
-          expect(err).toBe(rejectValue);
+          expect(err).to.equal(rejectValue);
           done();
         });
       });
@@ -152,7 +153,7 @@ describe('Sync functionality', () => {
         successfulPromise
           .catch(() => {})
           .then((result) => {
-            expect(result).toBe(value);
+            expect(result).to.equal(value);
             done();
           });
       });
@@ -170,7 +171,7 @@ describe('Sync functionality', () => {
             throw new Error('This then block should not have run');
           })
           .catch((err) => {
-            expect(err).toBe(rejectErr);
+            expect(err).to.equal(rejectErr);
             done();
           });
       });

@@ -1,6 +1,8 @@
 const myPromise = require('../my-promise');
 const fs = require('fs');
 const path = require('path');
+const sinon = require('sinon');
+const { expect } = require('chai');
 
 const pathToSongLife = path.join(__dirname, '..', 'test-files', 'life.txt');
 const pathToSongPromisesPromises = path.join(
@@ -21,7 +23,7 @@ describe('Async functionality', () => {
       });
     });
     readSongLyricsPromise.then((result) => {
-      expect(result).toBe(lifeSongLyrics);
+      expect(result).to.equal(lifeSongLyrics);
       done();
     });
   });
@@ -32,7 +34,7 @@ describe('Async functionality', () => {
       });
     });
     readSongLyricsPromise.catch((result) => {
-      expect(result).toBe('broken-path-to-song');
+      expect(result).to.equal('broken-path-to-song');
       done();
     });
   });
@@ -47,7 +49,7 @@ describe('Async functionality', () => {
         throw new Error('TEST SUITE ERROR: This cb should not fire');
       })
       .catch((result) => {
-        expect(result).toBe('broken-path-to-song');
+        expect(result).to.equal('broken-path-to-song');
         done();
       });
   });
@@ -64,11 +66,11 @@ describe('Async functionality', () => {
     });
     successfulPromise
       .then((result) => {
-        expect(result).toBe(simpleObj);
+        expect(result).to.equal(simpleObj);
         return lifeLyricsPromise;
       })
       .then((result) => {
-        expect(result).toBe(lifeSongLyrics);
+        expect(result).to.equal(lifeSongLyrics);
         done();
       });
   });
@@ -87,12 +89,12 @@ describe('Async functionality', () => {
     });
     return lifeLyricsPromise
       .then((result) => {
-        expect(result).toBe(lifeSongLyrics);
+        expect(result).to.equal(lifeSongLyrics);
         return promisesPromisesLyricsPromise;
       })
       .then((result) => {
-        expect(result).toBe(incubusLyrics);
+        expect(result).to.equal(incubusLyrics);
       });
   });
-  test.todo('error propagation');
+  // test.todo('error propagation');
 });

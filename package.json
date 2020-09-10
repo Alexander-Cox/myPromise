@@ -4,12 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "mocha tests/*"
   },
   "keywords": [],
   "author": "Alexander Cox",
   "license": "ISC",
   "devDependencies": {
     "jest": "^26.4.2"
+  },
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.1.3",
+    "sinon": "^9.0.3"
   }
 }
